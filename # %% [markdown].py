@@ -48,7 +48,15 @@ def draw_car():
 
 def draw_obstacles():
   for obs in obstacles:
-    pygame.draw.rect(screen, Red, obs)
+    x, y, width, height = obs
+    # Define the traffic cone shape
+    point1 = (x + width // 2, y)
+    point2 = (x, y + height)
+    point3 = (x + width, y + height)
+    points = [point1, point2, point3]
+    pygame.draw.polygon(screen, (255, 165, 0), [point1, point2, point3])
+    pygame.draw.line(screen, (255, 255, 255), (x + width // 2, y), (x, y + height), 2)
+    pygame.draw.line(screen, (255, 255, 255), (x + width // 2, y), (x + width, y + height), 2) 
 
 def spawn_obstacle():
   x = random.randint(0, WIDTH - obstacle_width)
