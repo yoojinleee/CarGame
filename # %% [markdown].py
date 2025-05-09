@@ -11,7 +11,7 @@ import time
 pygame.init()
 
 # Making the settings for the screen display
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 800, 600 # Setting up screen dimensions and creating the screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Car Racing Game")
 
@@ -20,22 +20,24 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 48)
 
 #Car
+# Determining the size of the car and initializing its position
 car_width, car_height = 50, 100
 car = pygame.Rect(WIDTH//2, HEIGHT - 120, car_width, car_height)
 
 # Making the car move
 car_speed = 5
 
-#Obstacle
+#Obstacle setup size and speed
 obstacle_width, obstacle_height = 50, 100
 obstacles = []
 obstacle_speed = 5
 
-#Game Activity
+#Game Activity 
+# Game state variables and math challenge timer
 running = True
 game_active = True
 last_math_time = time.time ()
-math_interval = 30
+math_interval = 30 # Seconds between math challenges
 
 #Colors
 WHITE = (255, 255, 255)
@@ -43,9 +45,11 @@ Black = (0,0,0)
 Red = (255, 0, 0)
 Blue = (0, 0, 255)
 
+# Drawing the car and obstacles
 def draw_car():
   pygame.draw.rect(screen, Blue, car)
 
+# Create a new obstacle at a random position
 def draw_obstacles():
   for obs in obstacles:
     x, y, width, height = obs
@@ -69,19 +73,31 @@ def move_obstacles():
   #Deleting obstacles off the screen
   obstacles[:] = [obs for obs in obstacles if obs.y < HEIGHT]
 
+# Check for collision between car and obstacles
 def check_collision():
   for obs in obstacles:
     if car.colliderect(obs):
       return True
   return False
 
+# Displaying messages on the screen for game over or correct answers
 def show_message(message):
+  waiting = True
+  while waiting:
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+      if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_RETURN:
+          waiting = False
   text = font.render(message, True, Black)
   rect = text.get_rect(center=(WIDTH//2, HEIGHT//2))
   screen.blit(text, rect)
   pygame.display.flip()
   pygame.time.delay(2000)
 
+# Begin a math quiz by generating two random numbers and calculating the answer
 def start_math_quiz():
   global num1, num2, answer, user_input, game_state
   num1 = random.randint(1,10)
@@ -144,14 +160,18 @@ user_input = ""
 num1, num2 = 0,0
 answer = 0
 
-# %%
-
+# Preventing someone from typing in an endless string of numbers
+elif event.key == pygame.K_BACKSPACE:
+    user_input = user_input[:-1]
+elif event.unicode.isdigit() and len(user_input) < 5:
+    user_input += event.unicode
+elif event.key == pygame.K_RETURN:
 
 # %%
 while running:
   clock.tick(60)
   screen.fill(WHITE)
-
+#Handle user input events
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
       running = False
@@ -171,12 +191,14 @@ while running:
       else:
         user_input += event.unicode
 
+# Handle math quiz input and render the question
     if game_state == "math_quiz":
       question = font.render(f"What is {num1} x {num2}?", True, Black)
       input_box = font.render(user_input, True, Red)
       screen.blit(question, (WIDTH//2 - question.get_width()//2, HEIGHT//2-50))
       screen.blit(input_box, (WIDTH//2 - input_box.get_width()//2, HEIGHT//2+10))
 
+# Main game actions 
     elif game_state == "playing" and game_active:
       keys = pygame.key.get_pressed()
       if keys[pygame.K_LEFT] and car.left>0:
@@ -184,6 +206,7 @@ while running:
       if keys[pygame.K_RIGHT] and car.right<WIDTH:
         car.x += car_speed
 
+# Occasional obstacle spawn
       if random.randint(1,20)==1:
         spawn_obstacle()
 
@@ -211,6 +234,7 @@ while running:
           game_active = True
           game_state = "playing"
 
+# Refresh screen
   pygame.display.flip() % DisplayHandle
 
 pygame.quit()
